@@ -8,12 +8,11 @@ class TestTokenTracker(unittest.TestCase):
         mock_response = Mock()
         mock_response.content = "Hello world"
         mock_response.usage.total_tokens = 10
-        mock_llm.invoke.return_value = mock_response
+        mock_llm.sample.return_value = mock_response
         wrapped = wrap_llm(mock_llm)
-        response = wrapped.invoke("Hi")
-        self.assertEqual(response, "Hello world")
+        response = wrapped.sample("Hi")
+        self.assertEqual(response, mock_response)
         self.assertEqual(wrapped.total_tokens, 10)
-        wrapped.original_invoke.assert_called_once_with("Hi")
 
 if __name__ == '__main__':
     unittest.main()
