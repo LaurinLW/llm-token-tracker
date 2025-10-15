@@ -1,20 +1,15 @@
 Metadata-Version: 2.4
 Name: llm-token-tracker
-Version: 0.1.1
+Version: 0.2.0
 Summary: A package to track LLM token usage in context
 Author: Laurin
 License-Expression: MIT
-Keywords: llm,token,tracker,openai,tiktoken
+Keywords: llm,token,tracker,xai,grok
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
-Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.8
-Classifier: Programming Language :: Python :: 3.9
-Classifier: Programming Language :: Python :: 3.10
-Classifier: Programming Language :: Python :: 3.11
-Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
-Requires-Python: >=3.8
+Requires-Python: >=3.13
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: xai-sdk
