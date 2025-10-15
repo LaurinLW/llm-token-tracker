@@ -17,7 +17,7 @@ Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: tiktoken
+Requires-Dist: xai-sdk
 Dynamic: license-file
 
 # llm-token-tracker
@@ -35,9 +35,11 @@ pip install llm-token-tracker
 ```python
 from llm_token_tracker import wrap_llm
 
-# Assuming you have an LLM object with an invoke(prompt) method that returns a string
-wrapped_llm = wrap_llm(llm, "gpt-3.5-turbo")
+# Wrap an xAI model for token tracking
+wrapped_llm = wrap_llm("grok-3")
 
 response = wrapped_llm.invoke("Hello, how are you?")
 # Console will log: Total tokens used in context: X
 ```
+
+Note: Requires XAI_API_KEY environment variable set for authentication.

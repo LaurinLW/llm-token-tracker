@@ -1,15 +1,15 @@
-import tiktoken
-
 class TokenTracker:
-    def __init__(self, llm, model_name):
+    def __init__(self, llm):
         self.llm = llm
-        self.encoding = tiktoken.encoding_for_model(model_name)
+        self.original_invoke = llm.invoke
         self.total_tokens = 0
+        llm.invoke = self._patched_invoke
 
-    def invoke(self, prompt):
-        response = self.llm.invoke(prompt)
-        prompt_tokens = len(self.encoding.encode(prompt))
-        response_tokens = len(self.encoding.encode(str(response)))
-        self.total_tokens += prompt_tokens + response_tokens
+    def _patched_invoke(self, prompt, *args, **kwargs):
+        response = self.original_invoke(prompt, *args, **kwargs)
+        self.total_tokens += response.usage.total_tokens
         print(f"Total tokens used in context: {self.total_tokens}")
-        return response
+        return response.content
+
+    def invoke(self, prompt, *args, **kwargs):
+        return self.llm.invoke(prompt, *args, **kwargs)
