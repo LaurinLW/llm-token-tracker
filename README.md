@@ -1,6 +1,16 @@
 # llm-token-tracker
 
+[![PyPI version](https://img.shields.io/pypi/v/llm-token-tracker.svg)](https://pypi.org/project/llm-token-tracker/)
+
 A Python package to track token usage in LLM interactions.
+
+## Features
+
+- Track token usage in LLM conversations
+- Support for detailed token breakdowns (prompt, completion, reasoning, cached, etc.)
+- Cost estimation for input and output tokens
+- Configurable verbosity levels for logging
+- Integration with custom loggers
 
 ## Installation
 
@@ -42,6 +52,10 @@ print(response.content)
 - `logger`: Optional `logging.Logger` instance. If provided, uses the logger instead of printing to console.
 - `log_level`: Logging level (default `logging.INFO`).
 - `quiet`: If `True`, disables all logging.
+- `max_tokens`: Maximum tokens allowed in context (default 132000).
+- `input_pricing`: Price per 1 million input tokens (default 0.2).
+- `output_pricing`: Price per 1 million output tokens (default 0.5).
+- `calculate_pricing`: If `True`, calculates and logs cost estimates (default `False`).
 
 Example with custom logger:
 
@@ -57,3 +71,11 @@ wrapped_chat = wrap_llm(chat, logger=logger, verbosity="detailed")
 ```
 
 Note: Requires XAI_API_KEY environment variable set for authentication.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
