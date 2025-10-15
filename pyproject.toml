@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-token-tracker"
-version = "0.2.0"
+version = "0.3.0"
 description = "A package to track LLM token usage in context"
 readme = "README.md"
 license = "MIT"

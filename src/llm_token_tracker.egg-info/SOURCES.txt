@@ -2,6 +2,7 @@ LICENSE
 README.md
 pyproject.toml
 src/llm_token_tracker/__init__.py
+src/llm_token_tracker/test.py
 src/llm_token_tracker/wrapper.py
 src/llm_token_tracker.egg-info/PKG-INFO
 src/llm_token_tracker.egg-info/SOURCES.txt
