@@ -86,6 +86,29 @@ class TestTokenTracker(unittest.TestCase):
             expected = usage.__pretty_str__(1000)
             mock_log.assert_called_with(logging.INFO, expected)
 
+    def test_wrap_llm_openai(self):
+        mock_client = Mock()
+        mock_response = Mock()
+        mock_response.usage = {
+            "input_tokens": 36,
+            "input_tokens_details": {
+                "cached_tokens": 0
+            },
+            "output_tokens": 87,
+            "output_tokens_details": {
+                "reasoning_tokens": 0
+            },
+            "total_tokens": 123
+        }
+        mock_client.responses.create.return_value = mock_response
+        wrapped = wrap_llm(mock_client, provider="openai")
+        response = wrapped.responses.create(model="gpt-4.1", input="Tell me a three sentence bedtime story about a unicorn.")
+        self.assertEqual(response, mock_response)
+        self.assertEqual(len(wrapped.token_history), 2)  # initial + one usage
+        self.assertEqual(wrapped.token_history[1].prompt_tokens.total_tokens, 123)
+        self.assertEqual(wrapped.token_history[1].prompt_tokens.prompt_tokens, 36)
+        self.assertEqual(wrapped.token_history[1].prompt_tokens.completion_tokens, 87)
+
 
 if __name__ == "__main__":
     unittest.main()

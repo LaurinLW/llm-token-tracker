@@ -74,6 +74,22 @@ class Usage:
             num_sources_used=sampling_usage.num_sources_used,
         )
 
+    @classmethod
+    def from_openai_dict(cls, data: dict):
+        return cls(
+            prompt_tokens=PromptTokens(
+                prompt_tokens=data.get("input_tokens", 0),
+                completion_tokens=data.get("output_tokens", 0),
+                total_tokens=data.get("total_tokens", 0),
+            ),
+            prompt_tokens_details=PromptTokensDetails(
+                cached_tokens=data.get("input_tokens_details", {}).get("cached_tokens", 0),
+            ),
+            completion_tokens_details=CompletionTokensDetails(
+                reasoning_tokens=data.get("output_tokens_details", {}).get("reasoning_tokens", 0),
+            ),
+        )
+
     def __str__(self) -> str:
         cost_str = ""
         if self.input_cost or self.output_cost or self.total_cost:
@@ -151,6 +167,7 @@ class TokenTracker:
         logger: Optional[logging.Logger] = None,
         log_level: int = logging.INFO,
         quiet: bool = False,
+        provider: Literal["xai", "openai"] = "xai",
     ):
         self.llm = llm
         self.max_tokens = max_tokens
@@ -162,9 +179,14 @@ class TokenTracker:
         self.log_level = log_level
         self.quiet = quiet
 
-        self.original_sample = llm.sample
+        self.provider = provider
         llm.token_history = [Usage()]
-        llm.sample = self._patched_sample
+        if provider == "openai":
+            self.original_create = llm.responses.create
+            llm.responses.create = self._patched_create
+        else:
+            self.original_sample = llm.sample
+            llm.sample = self._patched_sample
 
     def _calculate_cost(self, usage: Usage) -> Usage:
         if self.calculate_pricing:
@@ -179,7 +201,37 @@ class TokenTracker:
         response = self.original_sample(*args, **kwargs)
 
         if isinstance(response.usage, dict):
-            usage = Usage.from_dict(response.usage)
+            if 'input_tokens' in response.usage:
+                usage = Usage.from_openai_dict(response.usage)
+            else:
+                usage = Usage.from_dict(response.usage)
+        else:
+            usage = Usage.from_sampling_usage(response.usage)
+        usage = self._calculate_cost(usage)
+        self.llm.token_history = self.llm.token_history + [usage]
+
+        if not self.quiet:
+            match self.verbosity:
+                case "minimum":
+                    message = f"Total tokens used in context: {self.llm.token_history[-1:][0].prompt_tokens.total_tokens}"
+                    self._log(logging.INFO, message)
+                case "detailed":
+                    message = self.llm.token_history[-1:][0].__pretty_str__(self.max_tokens)
+                    self._log(logging.INFO, message)
+                case "max":
+                    message = self.llm.token_history[-1:][0].__str__()
+                    self._log(logging.DEBUG, message)
+
+        return response
+
+    def _patched_create(self, *args, **kwargs):
+        response = self.original_create(*args, **kwargs)
+
+        if isinstance(response.usage, dict):
+            if 'input_tokens' in response.usage:
+                usage = Usage.from_openai_dict(response.usage)
+            else:
+                usage = Usage.from_dict(response.usage)
         else:
             usage = Usage.from_sampling_usage(response.usage)
         usage = self._calculate_cost(usage)

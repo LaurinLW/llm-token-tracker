@@ -13,6 +13,7 @@ def wrap_llm(
     logger: Optional[logging.Logger] = None,
     log_level: int = logging.INFO,
     quiet: bool = False,
+    provider: Literal["xai", "openai"] = "xai",
 ):
     """
     Wrap an LLM to track token usage.
@@ -30,9 +31,10 @@ def wrap_llm(
         logger: Optional logger to use instead of print. If None, uses print.
         log_level: Logging level (e.g., logging.INFO).
         quiet: If True, disable all logging.
+        provider: The LLM provider ("xai" or "openai").
 
     Returns:
         The wrapped LLM.
     """
-    TokenTracker(llm, max_tokens, input_pricing, output_pricing, calculate_pricing, verbosity, logger, log_level, quiet)
+    TokenTracker(llm, max_tokens, input_pricing, output_pricing, calculate_pricing, verbosity, logger, log_level, quiet, provider)
     return llm
